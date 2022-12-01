@@ -24,3 +24,7 @@ advent_of_code-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# IntelliJ stuff
+advent_of_code.iml
+.idea
