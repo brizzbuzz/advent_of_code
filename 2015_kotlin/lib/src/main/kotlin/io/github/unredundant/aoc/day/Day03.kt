@@ -18,7 +18,19 @@ object Day03 : Day<Int, Int> {
   }
 
   override fun gold(): Int {
-    TODO("Not yet implemented")
+    val input = getInput(3)
+    val tracker: MutableMap<Position, Int> = mutableMapOf<Position, Int>().withDefault { 0 }
+    var santaPosition = Position(0, 0)
+    var robosantaPosition = Position(0, 0)
+    tracker[santaPosition] = tracker.getValue(santaPosition) + 1
+    tracker[robosantaPosition] = tracker.getValue(robosantaPosition) + 1
+    input.toDirections().forEachIndexed { i, direction ->
+      val position = if (i % 2 == 0) santaPosition else robosantaPosition
+      val newPosition = position.move(direction)
+      if (i % 2 == 0) santaPosition = newPosition else robosantaPosition = newPosition
+      tracker[newPosition] = tracker.getValue(newPosition) + 1
+    }
+    return tracker.filterValues { it > 0 }.size
   }
 
   private data class Position(val x: Int, val y: Int) {
