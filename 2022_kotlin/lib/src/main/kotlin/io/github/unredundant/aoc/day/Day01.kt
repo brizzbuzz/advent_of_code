@@ -2,13 +2,14 @@ package io.github.unredundant.aoc.day
 
 import io.github.unredundant.aoc.util.Util
 
-object Day01 {
+object Day01 : Day<Int, Int> {
+  override val calendarDate: Int = 1
 
-  fun silver(): Int = Util.getInput(1)
+  override fun silver(): Int = Util.getInput(1)
     .getInventories()
     .maxOf { it.countElfCalories() }
 
-  fun gold(): Int = Util.getInput(1)
+  override fun gold(): Int = Util.getInput(1)
     .getInventories()
     .map { it.countElfCalories() }
     .sorted()
