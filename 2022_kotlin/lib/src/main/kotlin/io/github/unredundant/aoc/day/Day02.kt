@@ -2,22 +2,34 @@ package io.github.unredundant.aoc.day
 
 import io.github.unredundant.aoc.util.Util
 
-object Day02 : Day<Int, Unit> {
+object Day02 : Day<Int, Int> {
   override val calendarDate: Int = 2
 
   override fun silver() = Util.getInput(2)
-    .convertInput()
+    .convertSilverInput()
     .calculateScore()
 
 
-  override fun gold() {
-    TODO("Not yet implemented")
-  }
+  override fun gold() = Util.getInput(2)
+    .convertGoldInput()
+    .calculateScore()
 
   private enum class Play {
     ROCK,
     PAPER,
-    SCISSORS
+    SCISSORS;
+
+    fun losesTo() = when (this) {
+      ROCK -> PAPER
+      PAPER -> SCISSORS
+      SCISSORS -> ROCK
+    }
+
+    fun winsAgainst() = when (this) {
+      ROCK -> SCISSORS
+      PAPER -> ROCK
+      SCISSORS -> PAPER
+    }
   }
 
   private enum class Result {
@@ -39,7 +51,7 @@ object Day02 : Day<Int, Unit> {
     }
   }
 
-  private fun String.convertInput(): List<Round> = lines().map { line ->
+  private fun String.convertSilverInput(): List<Round> = lines().map { line ->
     val (p1, p2) = line.split(" ")
     Round(
       elf = when (p1) {
@@ -52,6 +64,25 @@ object Day02 : Day<Int, Unit> {
         "X" -> Play.ROCK
         "Y" -> Play.PAPER
         "Z" -> Play.SCISSORS
+        else -> throw IllegalArgumentException("Invalid play: $p2")
+      }
+    )
+  }
+
+  private fun String.convertGoldInput(): List<Round> = lines().map { line ->
+    val (p1, p2) = line.split(" ")
+    val elfPlay = when (p1) {
+      "A" -> Play.ROCK
+      "B" -> Play.PAPER
+      "C" -> Play.SCISSORS
+      else -> throw IllegalArgumentException("Invalid play: $p1")
+    }
+    Round(
+      elf = elfPlay,
+      me = when (p2) {
+        "X" -> elfPlay.winsAgainst()
+        "Y" -> elfPlay
+        "Z" -> elfPlay.losesTo()
         else -> throw IllegalArgumentException("Invalid play: $p2")
       }
     )
