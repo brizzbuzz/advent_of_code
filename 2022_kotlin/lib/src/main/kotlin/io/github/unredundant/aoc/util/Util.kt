@@ -13,6 +13,6 @@ object Util {
   fun <S, G> printDayResults(day: Day<S, G>) {
     println("Day ${day.calendarDate} Silver: ${day.silver()}")
     println("Day ${day.calendarDate} Gold:   ${day.gold()}")
-    print("-".repeat(30))
+    println("-".repeat(30))
   }
 }
