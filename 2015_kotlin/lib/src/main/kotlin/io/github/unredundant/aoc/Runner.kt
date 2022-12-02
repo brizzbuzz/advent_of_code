@@ -10,5 +10,5 @@ fun main() {
   printDayResults(Day01)
   printDayResults(Day02)
   printDayResults(Day03)
-  printDayResults(Day04)
+  // printDayResults(Day04) // Takes forever :(
 }
