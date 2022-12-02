@@ -13,8 +13,7 @@ object Day01 : Day<Int, Int> {
     }
   }.sum()
 
-
-  // TODO Use fold?
+  // TODO Use accumulator?
   override fun gold(): Int {
     var position = 1
     val nonNegative = getInput(1).toCharArray().takeWhile {
