@@ -4,19 +4,18 @@ import io.github.unredundant.aoc.util.Util
 
 object Day01 {
 
-  fun silver() {
-    val input = Util.getInput(1)
-    val max = input.split("\n\n").maxOfOrNull { it.split("\n").sumOf { cals -> cals.toInt() } }
-    println(max)
-  }
+  fun silver(): Int = Util.getInput(1)
+    .getInventories()
+    .maxOf { it.countElfCalories() }
 
-  fun gold() {
-    val input = Util.getInput(1)
-    val topThreeCalories = input.split("\n\n")
-      .map { it.split("\n").sumOf { cals -> cals.toInt() } }
-      .sorted()
-      .takeLast(3)
-      .sum()
-    print(topThreeCalories)
-  }
+  fun gold(): Int = Util.getInput(1)
+    .getInventories()
+    .map { it.countElfCalories() }
+    .sorted()
+    .takeLast(3)
+    .sum()
+
+  private fun String.getInventories(): List<String> = this.split("\n\n")
+
+  private fun String.countElfCalories(): Int = this.split("\n").sumOf { cals -> cals.toInt() }
 }
