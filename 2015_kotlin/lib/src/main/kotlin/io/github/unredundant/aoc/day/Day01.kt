@@ -1,11 +1,9 @@
 package io.github.unredundant.aoc.day
 
-import io.github.unredundant.aoc.util.Util.getInput
-
 object Day01 : Day<Int, Int> {
   override val calendarDate: Int = 1
 
-  override fun silver() = getInput(1).toCharArray().map { c ->
+  override fun silver() = input.toCharArray().map { c ->
     when (c) {
       '(' -> 1
       ')' -> -1
@@ -16,7 +14,7 @@ object Day01 : Day<Int, Int> {
   // TODO Use accumulator?
   override fun gold(): Int {
     var position = 1
-    val nonNegative = getInput(1).toCharArray().takeWhile {
+    val nonNegative = input.toCharArray().takeWhile {
       position += when (it) {
         '(' -> 1
         ')' -> -1

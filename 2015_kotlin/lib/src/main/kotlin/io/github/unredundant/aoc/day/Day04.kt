@@ -1,15 +1,12 @@
 package io.github.unredundant.aoc.day
 
-import io.github.unredundant.aoc.util.Util.getInput
 import java.nio.charset.StandardCharsets.UTF_8
 import java.security.MessageDigest
 
 object Day04 : Day<Int, Int> {
   override val calendarDate: Int = 4
-  private val crypt = MessageDigest.getInstance("MD5");
 
   override fun silver(): Int {
-    val input = getInput(4)
     var i = 0
     do {
       val hash = md5("$input$i").toHex()
@@ -21,7 +18,6 @@ object Day04 : Day<Int, Int> {
   }
 
   override fun gold(): Int {
-    val input = getInput(4)
     var i = 0
     do {
       val hash = md5("$input$i").toHex()

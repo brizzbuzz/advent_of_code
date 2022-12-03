@@ -1,12 +1,9 @@
 package io.github.unredundant.aoc.day
 
-import io.github.unredundant.aoc.util.Util.getInput
-
 object Day03 : Day<Int, Int> {
   override val calendarDate: Int = 3
 
   override fun silver(): Int {
-    val input = getInput(3)
     val tracker: MutableMap<Position, Int> = mutableMapOf<Position, Int>().withDefault { 0 }
     var currPosition = Position(0, 0)
     tracker[currPosition] = tracker.getValue(currPosition) + 1
@@ -18,7 +15,6 @@ object Day03 : Day<Int, Int> {
   }
 
   override fun gold(): Int {
-    val input = getInput(3)
     val tracker: MutableMap<Position, Int> = mutableMapOf<Position, Int>().withDefault { 0 }
     var santaPosition = Position(0, 0)
     var robosantaPosition = Position(0, 0)

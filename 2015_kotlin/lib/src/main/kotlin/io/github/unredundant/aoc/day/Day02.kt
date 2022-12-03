@@ -1,13 +1,11 @@
 package io.github.unredundant.aoc.day
 
-import io.github.unredundant.aoc.util.Util.getInput
-
 object Day02 : Day<Int, Int> {
   override val calendarDate: Int = 2
 
-  override fun silver(): Int = getInput(2).parseInput().sumOf { it.calculateWrappingPaper() }
+  override fun silver(): Int = input.parseInput().sumOf { it.calculateWrappingPaper() }
 
-  override fun gold(): Int = getInput(2).parseInput().sumOf { it.calculateRibbonLength() }
+  override fun gold(): Int = input.parseInput().sumOf { it.calculateRibbonLength() }
 
   private data class Box(val l: Int, val w: Int, val h: Int)
 
