@@ -1,21 +1,28 @@
 package io.github.unredundant.aoc.day
 
-object Day07 : Day<UShort, Int> {
+object Day07 : Day<UShort, UShort> {
   override val calendarDate: Int = 7
 
   override fun silver(): UShort {
     val circuits: MutableMap<String, UShort> = mutableMapOf()
     var instructions = input.parseInstruction()
+    return evaluateInstructions(instructions, circuits)
+  }
+
+  override fun gold(): UShort {
+    val circuits: MutableMap<String, UShort> = mutableMapOf("b" to silver())
+    var instructions = input.parseInstruction().filterNot { it.output == "b"  }
+    return evaluateInstructions(instructions, circuits)
+  }
+
+  private fun evaluateInstructions(instructions: List<Instruction>, circuits: MutableMap<String, UShort>): UShort {
+    var instructions = instructions
     while (instructions.isNotEmpty()) {
       val (canBeEvaluated, rest) = instructions.partition { it.canBeEvaluated(circuits) }
       instructions = rest
       canBeEvaluated.forEach { it.evaluate(circuits) }
     }
     return circuits["a"]!!
-  }
-
-  override fun gold(): Int {
-    TODO("Not yet implemented")
   }
 
   private enum class Operation {
