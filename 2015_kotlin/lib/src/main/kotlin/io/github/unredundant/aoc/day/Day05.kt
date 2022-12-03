@@ -10,8 +10,11 @@ object Day05 : Day<Int, Int> {
   override fun gold(): Int = getInput(5).lines().count { it.isNiceGold() }
 
   private fun String.containsAtLeastThreeVowels(): Boolean = count { it in "aeiou" } >= 3
+
   private fun String.containsAtLeastOneDoubleLetter(): Boolean = windowed(2).any { it[0] == it[1] }
+
   private fun String.doesNotContainBadWords(): Boolean = !contains("ab|cd|pq|xy".toRegex())
+
   private fun String.isNiceSilver() =
     containsAtLeastThreeVowels() && containsAtLeastOneDoubleLetter() && doesNotContainBadWords()
 
