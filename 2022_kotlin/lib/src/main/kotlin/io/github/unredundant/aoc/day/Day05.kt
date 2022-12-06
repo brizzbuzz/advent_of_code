@@ -60,7 +60,12 @@ object Day05 : Day<String, String> {
 
   private fun CrateStack.moveChunked(instruction: Instruction, maxChunkSize: Int = 3): CrateStack {
     val crates = this.crates.toMutableList()
-    val movedCrates = crates[instruction.start].takeLast(instruction.count).reversed().chunked(maxChunkSize).flatten().reversed()
+    val movedCrates = crates[instruction.start]
+      .takeLast(instruction.count)
+      .reversed()
+      .chunked(maxChunkSize)
+      .flatten()
+      .reversed()
     crates[instruction.start] = crates[instruction.start].dropLast(instruction.count)
     crates[instruction.end] = crates[instruction.end] + movedCrates
     return CrateStack(crates)
