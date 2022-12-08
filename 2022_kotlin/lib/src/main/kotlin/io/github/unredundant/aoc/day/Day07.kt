@@ -18,15 +18,14 @@ object Day07 : Day<Int, Int> {
     val fileSystem = input.constructFileSystemFromInput()
     val freeSpace = TOTAL_DISK_SPACE - fileSystem.directories.values.map { it.totalSize() }.max()
     val spaceToFree = REQUIRED_SPACE - freeSpace
-    val idk = fileSystem.directories.mapValues { it.value.totalSize() }.map { it.toPair() }
-      .fold(Pair("", Int.MAX_VALUE)) { acc, pair ->
-        if (pair.second - spaceToFree > 0 && pair.second < acc.second) {
-          pair
+    return fileSystem.directories.mapValues { it.value.totalSize() }.map { it.toPair() }
+      .fold(Int.MAX_VALUE) { acc, pair ->
+        if (pair.second - spaceToFree > 0 && pair.second < acc) {
+          pair.second
         } else {
           acc
         }
       }
-    return idk.second
   }
 
   private data class FileSystem(val directories: MutableMap<String, Directory> = mutableMapOf())
