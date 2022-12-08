@@ -1,11 +1,13 @@
 package io.github.unredundant.aoc.day
 
 object Day07 : Day<Int, Int> {
+  private const val TOTAL_DISK_SPACE = 70000000
+  private const val REQUIRED_SPACE = 30000000
+
   override val calendarDate: Int = 7
 
   override fun silver(): Int {
     val fileSystem = input.constructFileSystemFromInput()
-    fileSystem.directories.forEach { t, u -> println("$t: ${u.totalSize()}") }
     return fileSystem.directories
       .filterValues { it.totalSize() < 100000 }
       .map { it.value.totalSize() }
@@ -13,7 +15,18 @@ object Day07 : Day<Int, Int> {
   }
 
   override fun gold(): Int {
-    TODO("Not yet implemented")
+    val fileSystem = input.constructFileSystemFromInput()
+    val freeSpace = TOTAL_DISK_SPACE - fileSystem.directories.values.map { it.totalSize() }.max()
+    val spaceToFree = REQUIRED_SPACE - freeSpace
+    val idk = fileSystem.directories.mapValues { it.value.totalSize() }.map { it.toPair() }
+      .fold(Pair("", Int.MAX_VALUE)) { acc, pair ->
+        if (pair.second - spaceToFree > 0 && pair.second < acc.second) {
+          pair
+        } else {
+          acc
+        }
+      }
+    return idk.second
   }
 
   private data class FileSystem(val directories: MutableMap<String, Directory> = mutableMapOf())
@@ -25,6 +38,7 @@ object Day07 : Day<Int, Int> {
     val directories: MutableList<Directory> = mutableListOf(),
   )
 
+  // TODO This is disgusting
   private fun String.constructFileSystemFromInput(): FileSystem {
     val fileSystem = FileSystem()
     var currPath = ""
@@ -37,15 +51,16 @@ object Day07 : Day<Int, Int> {
           currPath = when (dir) {
             "/" -> "/"
             ".." -> {
-              println(currPath.substringBeforeLast("/") + '/')
               currPath.substringBeforeLast("/").substringBeforeLast("/") + '/'
             }
+
             else -> "$currPath$dir/"
           }
           when (dir) {
             "/" -> {
               fileSystem.directories[currPath] = newDir
             }
+
             ".." -> {}
             else -> {
               fileSystem.directories[parentPath]!!.directories.add(newDir)
@@ -57,7 +72,6 @@ object Day07 : Day<Int, Int> {
         else -> {
           when {
             line.matches(Regex("[0-9]* .*")) -> {
-              println("Adding file $line to $currPath")
               val (size, name) = line.split(" ")
               val file = File(name, size.toInt())
               fileSystem.directories[currPath]?.files?.add(file)
@@ -73,5 +87,6 @@ object Day07 : Day<Int, Int> {
 }
 
 fun main() {
-  print(Day07.silver())
+  println(Day07.silver())
+  println(Day07.gold())
 }
