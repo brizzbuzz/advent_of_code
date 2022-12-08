@@ -16,7 +16,7 @@ object Day07 : Day<Int, Int> {
 
   override fun gold(): Int {
     val fileSystem = input.constructFileSystemFromInput()
-    val freeSpace = TOTAL_DISK_SPACE - fileSystem.directories.values.map { it.totalSize() }.max()
+    val freeSpace = TOTAL_DISK_SPACE - fileSystem.directories.values.maxOf { it.totalSize() }
     val spaceToFree = REQUIRED_SPACE - freeSpace
     return fileSystem.directories.mapValues { it.value.totalSize() }.map { it.toPair() }
       .fold(Int.MAX_VALUE) { acc, pair ->
