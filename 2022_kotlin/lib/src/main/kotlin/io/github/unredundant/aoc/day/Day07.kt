@@ -84,8 +84,3 @@ object Day07 : Day<Int, Int> {
 
   private fun Directory.totalSize(): Int = files.sumOf { it.size } + directories.sumOf { it.totalSize() }
 }
-
-fun main() {
-  println(Day07.silver())
-  println(Day07.gold())
-}
