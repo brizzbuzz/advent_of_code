@@ -27,12 +27,33 @@ object Day02 : Day<Int, Int> {
   private fun String.getGamePrefix() = split(":").first().replace("Game", "").trim().toInt()
   private fun String.toRounds() = split(";").map { it.split(",").toRound() }
   private fun List<String>.toRound() = Round(
-    find { it.contains("red") }?.findCount()?.trim()?.toInt() ?: 0,
-    find { it.contains("green") }?.findCount()?.trim()?.toInt() ?: 0,
-    find { it.contains("blue") }?.findCount()?.trim()?.toInt() ?: 0
+    red = findByColor("red"),
+    green = findByColor("green"),
+    blue = findByColor("blue")
   )
+
+  private fun List<String>.findByColor(color: String) = find { it.contains(color) }?.findCount()?.trim()?.toInt() ?: 0
 
   private fun String.findCount() = split(":").last().replace(Regex("[a-zA-Z]"), "")
   data class Game(val id: Int, val rounds: List<Round>)
   data class Round(val red: Int, val green: Int, val blue: Int)
+
+  private fun golf() {
+    val re = Regex("[a-zA-Z; ]")
+    val b = input.lines()
+      .asSequence()
+      .map { it.split(":") }
+      .map { (i, r) -> i.replace("Game", "").trim().toInt() to r.split(Regex("[,;]")).map { it.trim() } }
+      .map { (i, r) ->
+        i to Triple(
+          r.filter { c -> c.contains("red") }.maxOfOrNull { c -> c.replace(re, "").toInt() } ?: 0,
+          r.filter { c -> c.contains("green") }.maxOfOrNull { c -> c.replace(re, "").toInt() } ?: 0,
+          r.filter { c -> c.contains("blue") }.maxOfOrNull { c -> c.replace(re, "").toInt() } ?: 0
+        )
+      }
+    val s = b.filter { (_, c) -> c.first <= 12 && c.second <= 13 && c.third <= 14 }.sumOf { (i, _) -> i }
+    val g = b.sumOf { (_, c) -> c.first * c.second * c.third }
+    println("s: $s")
+    println("g: $g")
+  }
 }
