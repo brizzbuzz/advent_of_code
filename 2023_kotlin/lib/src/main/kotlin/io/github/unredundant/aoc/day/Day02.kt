@@ -38,22 +38,17 @@ object Day02 : Day<Int, Int> {
   data class Game(val id: Int, val rounds: List<Round>)
   data class Round(val red: Int, val green: Int, val blue: Int)
 
-  private fun golf() {
+  fun golf() {
     val re = Regex("[a-zA-Z; ]")
-    val b = input.lines()
-      .asSequence()
-      .map { it.split(":") }
-      .map { (i, r) -> i.replace("Game", "").trim().toInt() to r.split(Regex("[,;]")).map { it.trim() } }
-      .map { (i, r) ->
-        i to Triple(
-          r.filter { c -> c.contains("red") }.maxOfOrNull { c -> c.replace(re, "").toInt() } ?: 0,
-          r.filter { c -> c.contains("green") }.maxOfOrNull { c -> c.replace(re, "").toInt() } ?: 0,
-          r.filter { c -> c.contains("blue") }.maxOfOrNull { c -> c.replace(re, "").toInt() } ?: 0
-        )
-      }
+    val f: (List<String>, String) -> Int = { r, cc -> r.filter { c -> c.contains(cc) }.maxOfOrNull { c -> c.replace(re, "").toInt() } ?: 0 }
+    val b = input.lines().map { it.split(":") }.map { (i, r) -> i.replace("Game", "").trim().toInt() to r.split(Regex("[,;]")).map { it.trim() } }.map { (i, r) -> i to Triple(f(r, "red"), f(r, "green"), f(r, "blue")) }
     val s = b.filter { (_, c) -> c.first <= 12 && c.second <= 13 && c.third <= 14 }.sumOf { (i, _) -> i }
     val g = b.sumOf { (_, c) -> c.first * c.second * c.third }
     println("s: $s")
     println("g: $g")
   }
+}
+
+fun main() {
+  Day02.golf()
 }
