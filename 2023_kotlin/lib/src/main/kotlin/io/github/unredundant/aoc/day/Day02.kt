@@ -14,7 +14,7 @@ object Day02 : Day<Int, Int> {
   }
 
   private val games: List<Game> = input.lines().toGames()
-  private fun List<String>.toGames() = map { it.toGame() }.map { (id, rounds) -> Game(id, rounds) }
+  private fun List<String>.toGames() = map { it.toGame() }
   private fun String.toGame() = Game(getGamePrefix(), dropGamePrefix().toRounds())
 
   private fun Game.maxCubeByColor() = Triple(
