@@ -47,7 +47,3 @@ object Day02 : Day<Int, Int> {
     println("g: $g")
   }
 }
-
-fun main() {
-  Day02.golf()
-}
