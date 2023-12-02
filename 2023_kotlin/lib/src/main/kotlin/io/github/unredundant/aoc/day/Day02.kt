@@ -13,18 +13,19 @@ object Day02 : Day<Int, Int> {
     mr * mg * mb
   }
 
-  private val games: List<Game> = input.lines()
-    .map { Pair(it.getGamePrefix(), it.dropGamePrefix()) }
-    .map { (id, line) -> Pair(id, line.split(";").toRounds()) }.map { (id, rounds) -> Game(id, rounds) }
+  private val games: List<Game> = input.lines().toGames()
+  private fun List<String>.toGames() = map { it.toGame() }.map { (id, rounds) -> Game(id, rounds) }
+  private fun String.toGame() = Game(getGamePrefix(), dropGamePrefix().toRounds())
 
   private fun Game.maxCubeByColor() = Triple(
     rounds.maxOf { it.red },
     rounds.maxOf { it.green },
     rounds.maxOf { it.blue }
   )
+
   private fun String.dropGamePrefix() = split(":").last()
   private fun String.getGamePrefix() = split(":").first().replace("Game", "").trim().toInt()
-  private fun List<String>.toRounds() = map { it.split(",").toRound() }
+  private fun String.toRounds() = split(";").map { it.split(",").toRound() }
   private fun List<String>.toRound() = Round(
     find { it.contains("red") }?.findCount()?.trim()?.toInt() ?: 0,
     find { it.contains("green") }?.findCount()?.trim()?.toInt() ?: 0,
