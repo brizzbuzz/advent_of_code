@@ -1,0 +1,12 @@
+complexity:
+  TooManyFunctions:
+    active: false
+  LongParameterList:
+    active: true
+    functionThreshold: 10
+
+style:
+  MaxLineLength:
+    excludes: ['**/test/**/*', '**/testIntegration/**/*']
+    active: true
+    maxLineLength: 120
