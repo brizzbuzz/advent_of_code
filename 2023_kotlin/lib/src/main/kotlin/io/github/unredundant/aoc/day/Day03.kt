@@ -6,18 +6,18 @@ object Day03 : Day<Int, Int> {
 
   private val symbols = listOf('#', '$', '%', '&', '*', '+', '-', '_', '/', '=', '@')
 
-  private val paddedInput = let {
+  private val sanitizedInput = let {
     val lineLength = input.lines().first().length
     val padStr = ".".repeat(lineLength)
     padStr.plus("\n").plus(input).plus("\n").plus(padStr)
       .lines()
       .joinToString("\n") { ".$it." }
+      .replace("-", "_")
   }
 
-  private val sanitizedInput = paddedInput.replace("-", "_")
-
   override fun silver(): Int = sanitizedInput.lines().windowed(3).map { it.toWindow() }.sumOf { w ->
-    val result = w.middle.fold(Pair(0, 0)) { acc, c ->
+    val initial = Accumulator(0, 0)
+    val result = w.middle.fold(initial) { acc, _ ->
       val (index, score) = acc
 
       if (index >= w.middle.length) {
@@ -30,47 +30,79 @@ object Day03 : Day<Int, Int> {
       }
 
       if (numberLength == 0) {
-        return@fold Pair(index + 1, score)
+        return@fold Accumulator(index + 1, score)
       }
 
       val borderWindow = w.toBorderWindow(index, numberLength)
       val number = w.middle.substring(index, index + numberLength).toInt()
 
       if (borderWindow.containsSymbol) {
-        return@fold Pair(index + numberLength, score + number)
+        return@fold Accumulator(index + numberLength, score + number)
       }
 
-      Pair(index + numberLength, score)
+      Accumulator(index + numberLength, score)
     }
-    result.second
+    result.value
   }
+
+  override fun gold(): Int = sanitizedInput.lines().windowed(3).map { it.toWindow() }.mapIndexed { y, w ->
+    val initial = Accumulator(0, emptyList<GearComponent>())
+    val result = w.middle.fold(initial) { acc, _ ->
+      val (index, gearComponents) = acc
+
+      if (index >= w.middle.length) {
+        return@fold acc
+      }
+
+      var numberLength = 0
+      while (w.middle[index + numberLength].isNumber) {
+        numberLength++
+      }
+
+      if (numberLength == 0) {
+        return@fold Accumulator(index + 1, gearComponents)
+      }
+
+      val borderWindow = w.toBorderWindow(index, numberLength)
+      val number = w.middle.substring(index, index + numberLength).toInt()
+      val adjacentGearCoordinates = borderWindow.gearCoordinates(index, y)
+
+      if (borderWindow.containsSymbol) {
+        return@fold Accumulator(
+          index + numberLength,
+          gearComponents + adjacentGearCoordinates.map { GearComponent(it, number) })
+      }
+
+      Accumulator(index + numberLength, gearComponents)
+    }
+    result.value
+  }
+    .flatten()
+    .groupBy { it.coordinate }
+    .mapValues { (_, v) -> v.map { it.score } }
+    .filterValues { it.size == 2 }
+    .mapValues { (_, v) -> v[0] * v[1] }
+    .values
+    .sum()
+
+  data class Accumulator<T>(val index: Int, val value: T)
 
   private val Window.containsSymbol: Boolean
     get() = symbols.any { s -> top.contains(s) || middle.contains(s) || bottom.contains(s) }
 
-  // TODO Clean this up
-  private fun Window.gearCoordinates(startX: Int, startY: Int): List<Coordinate> = top.mapIndexedNotNull { index, c ->
-    if (c.isGear) {
-      Coordinate(startX + index, startY)
-    } else {
-      null
-    }
-  } +
-    middle.mapIndexedNotNull { index, c ->
-      if (c.isGear) {
-        Coordinate(startX + index, startY + 1)
-      } else {
-        null
-      }
-    } +
-    bottom.mapIndexedNotNull { index, c ->
-      if (c.isGear) {
-        Coordinate(startX + index, startY + 2)
-      } else {
-        null
-      }
-    }
+  private fun Window.gearCoordinates(startX: Int, startY: Int): List<Coordinate> =
+    top.identifyGearCoordinates(startX, startY) +
+      middle.identifyGearCoordinates(startX, startY + 1) +
+      bottom.identifyGearCoordinates(startX, startY + 2)
 
+  private fun String.identifyGearCoordinates(startX: Int, startY: Int): List<Coordinate> =
+    mapIndexedNotNull { index, c ->
+      if (c.isGear) {
+        Coordinate(startX + index, startY)
+      } else {
+        null
+      }
+    }
 
   private fun Window.toBorderWindow(start: Int, length: Int): Window {
     val topSubstring = top.substring(start - 1, start + length + 1)
@@ -84,62 +116,12 @@ object Day03 : Day<Int, Int> {
   }
 
   private fun List<String>.toWindow() = Window(top = first(), middle = get(1), bottom = last())
-  data class Window(val top: String, val middle: String, val bottom: String) {
-    fun prettyPrint() {
-      println(
-        """
-        $top
-        $middle
-        $bottom
-      """.trimIndent()
-      )
-    }
-  }
+  data class Window(val top: String, val middle: String, val bottom: String)
 
   data class Coordinate(val x: Int, val y: Int)
-  data object Gear
 
   private val Char.isGear: Boolean
     get() = this == '*'
-
-  override fun gold(): Int = sanitizedInput.lines().windowed(3).map { it.toWindow() }.mapIndexed { y, w ->
-    val result = w.middle.fold(Pair(0, emptyList<GearComponent>())) { acc, c ->
-      val (index, gearComponents) = acc
-
-      if (index >= w.middle.length) {
-        return@fold acc
-      }
-
-      var numberLength = 0
-      while (w.middle[index + numberLength].isNumber) {
-        numberLength++
-      }
-
-      if (numberLength == 0) {
-        return@fold Pair(index + 1, gearComponents)
-      }
-
-      val borderWindow = w.toBorderWindow(index, numberLength)
-      val number = w.middle.substring(index, index + numberLength).toInt()
-      val adjacentGearCoordinates = borderWindow.gearCoordinates(index, y)
-
-      if (borderWindow.containsSymbol) {
-        return@fold Pair(
-          index + numberLength,
-          gearComponents + adjacentGearCoordinates.map { GearComponent(it, number) })
-      }
-
-      Pair(index + numberLength, gearComponents)
-    }
-    result.second
-  }
-    .flatten()
-    .groupBy { it.coordinate }
-    .mapValues { (_, v) -> v.map { it.score } }
-    .filterValues { it.size == 2 }
-    .mapValues { (_, v) -> v[0] * v[1] }
-    .values
-    .sum()
 
   data class GearComponent(val coordinate: Coordinate, val score: Int)
 
