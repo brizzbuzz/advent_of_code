@@ -4,8 +4,6 @@ object Day03 : Day<Int, Int> {
 
   override val calendarDate: Int = 3
 
-  private val symbols = listOf('#', '$', '%', '&', '*', '+', '-', '_', '/', '=', '@')
-
   private val sanitizedInput = let {
     val lineLength = input.lines().first().length
     val padStr = ".".repeat(lineLength)
@@ -15,33 +13,9 @@ object Day03 : Day<Int, Int> {
       .replace("-", "_")
   }
 
-  private fun <A> foldWrapper(
-    a: Accumulator<A>,
-    w: Window,
-    f: (Accumulator<A>, Window, Int, Int) -> Accumulator<A>
-  ): Accumulator<A> {
-    val (i, _) = a
+  private val windows = sanitizedInput.lines().windowed(3).map { it.toWindow() }
 
-    if (i >= w.middle.length) {
-      return a
-    }
-
-    var nl = 0
-    while (w.middle[i + nl].isNumber) {
-      nl++
-    }
-
-    if (nl == 0) {
-      return a.increment()
-    }
-
-    val bw = w.toBorderWindow(i, nl)
-    val n = w.middle.substring(i, i + nl).toInt()
-
-    return f(a, bw, n, nl)
-  }
-
-  override fun silver(): Int = sanitizedInput.lines().windowed(3).map { it.toWindow() }.sumOf { w ->
+  override fun silver(): Int = windows.sumOf { w ->
     val initial = Accumulator(0, 0)
     val result = w.middle.fold(initial) { acc, _ ->
       foldWrapper(acc, w) { a, bw, n, nl ->
@@ -55,35 +29,16 @@ object Day03 : Day<Int, Int> {
     result.value
   }
 
-  override fun gold(): Int = sanitizedInput.lines().windowed(3).map { it.toWindow() }.mapIndexed { y, w ->
+  override fun gold(): Int = windows.mapIndexed { y, w ->
     val initial = Accumulator(0, emptyList<GearComponent>())
     val result = w.middle.fold(initial) { acc, _ ->
-      val (index, gearComponents) = acc
-
-      if (index >= w.middle.length) {
-        return@fold acc
+      foldWrapper(acc, w) { a, bw, n, nl ->
+        if (bw.containsSymbol) {
+          a.increment(nl, a.value + bw.gearCoordinates(a.index, y).map { GearComponent(it, n) })
+        } else {
+          a.increment(nl)
+        }
       }
-
-      var numberLength = 0
-      while (w.middle[index + numberLength].isNumber) {
-        numberLength++
-      }
-
-      if (numberLength == 0) {
-        return@fold Accumulator(index + 1, gearComponents)
-      }
-
-      val borderWindow = w.toBorderWindow(index, numberLength)
-      val number = w.middle.substring(index, index + numberLength).toInt()
-      val adjacentGearCoordinates = borderWindow.gearCoordinates(index, y)
-
-      if (borderWindow.containsSymbol) {
-        return@fold Accumulator(
-          index + numberLength,
-          gearComponents + adjacentGearCoordinates.map { GearComponent(it, number) })
-      }
-
-      Accumulator(index + numberLength, gearComponents)
     }
     result.value
   }
@@ -95,12 +50,42 @@ object Day03 : Day<Int, Int> {
     .values
     .sum()
 
+  private fun <A> foldWrapper(
+    a: Accumulator<A>,
+    w: Window,
+    f: (Accumulator<A>, Window, Int, Int) -> Accumulator<A>
+  ): Accumulator<A> {
+    val (i, _) = a
+
+    if (i >= w.middle.length) {
+      return a
+    }
+
+    var nl = 0
+    while (w.middle[i + nl] in '0'..'9') {
+      nl++
+    }
+
+    if (nl == 0) {
+      return a.increment()
+    }
+
+    val bw = w.toBorderWindow(i, nl)
+    val n = w.middle.substring(i, i + nl).toInt()
+
+    return f(a, bw, n, nl)
+  }
+
   data class Accumulator<T>(val index: Int, val value: T) {
     fun increment(i: Int = 1, v: T = value) = Accumulator(index + i, v)
   }
 
   private val Window.containsSymbol: Boolean
-    get() = symbols.any { s -> top.contains(s) || middle.contains(s) || bottom.contains(s) }
+    get() = listOf('#', '$', '%', '&', '*', '+', '-', '_', '/', '=', '@').any { s ->
+      top.contains(s) || middle.contains(
+        s
+      ) || bottom.contains(s)
+    }
 
   private fun Window.gearCoordinates(startX: Int, startY: Int): List<Coordinate> =
     top.identifyGearCoordinates(startX, startY) +
@@ -109,7 +94,7 @@ object Day03 : Day<Int, Int> {
 
   private fun String.identifyGearCoordinates(startX: Int, startY: Int): List<Coordinate> =
     mapIndexedNotNull { index, c ->
-      if (c.isGear) {
+      if (c == '*') {
         Coordinate(startX + index, startY)
       } else {
         null
@@ -129,14 +114,6 @@ object Day03 : Day<Int, Int> {
 
   private fun List<String>.toWindow() = Window(top = first(), middle = get(1), bottom = last())
   data class Window(val top: String, val middle: String, val bottom: String)
-
   data class Coordinate(val x: Int, val y: Int)
-
-  private val Char.isGear: Boolean
-    get() = this == '*'
-
   data class GearComponent(val coordinate: Coordinate, val score: Int)
-
-  private val Char.isNumber: Boolean
-    get() = this in '0'..'9'
 }
