@@ -15,32 +15,42 @@ object Day03 : Day<Int, Int> {
       .replace("-", "_")
   }
 
+  private fun <A> foldWrapper(
+    a: Accumulator<A>,
+    w: Window,
+    f: (Accumulator<A>, Window, Int, Int) -> Accumulator<A>
+  ): Accumulator<A> {
+    val (i, _) = a
+
+    if (i >= w.middle.length) {
+      return a
+    }
+
+    var nl = 0
+    while (w.middle[i + nl].isNumber) {
+      nl++
+    }
+
+    if (nl == 0) {
+      return a.increment()
+    }
+
+    val bw = w.toBorderWindow(i, nl)
+    val n = w.middle.substring(i, i + nl).toInt()
+
+    return f(a, bw, n, nl)
+  }
+
   override fun silver(): Int = sanitizedInput.lines().windowed(3).map { it.toWindow() }.sumOf { w ->
     val initial = Accumulator(0, 0)
     val result = w.middle.fold(initial) { acc, _ ->
-      val (index, score) = acc
-
-      if (index >= w.middle.length) {
-        return@fold acc
+      foldWrapper(acc, w) { a, bw, n, nl ->
+        if (bw.containsSymbol) {
+          a.increment(nl, a.value + n)
+        } else {
+          a.increment(nl)
+        }
       }
-
-      var numberLength = 0
-      while (w.middle[index + numberLength].isNumber) {
-        numberLength++
-      }
-
-      if (numberLength == 0) {
-        return@fold Accumulator(index + 1, score)
-      }
-
-      val borderWindow = w.toBorderWindow(index, numberLength)
-      val number = w.middle.substring(index, index + numberLength).toInt()
-
-      if (borderWindow.containsSymbol) {
-        return@fold Accumulator(index + numberLength, score + number)
-      }
-
-      Accumulator(index + numberLength, score)
     }
     result.value
   }
@@ -85,7 +95,9 @@ object Day03 : Day<Int, Int> {
     .values
     .sum()
 
-  data class Accumulator<T>(val index: Int, val value: T)
+  data class Accumulator<T>(val index: Int, val value: T) {
+    fun increment(i: Int = 1, v: T = value) = Accumulator(index + i, v)
+  }
 
   private val Window.containsSymbol: Boolean
     get() = symbols.any { s -> top.contains(s) || middle.contains(s) || bottom.contains(s) }
