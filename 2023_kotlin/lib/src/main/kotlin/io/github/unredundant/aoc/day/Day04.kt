@@ -7,12 +7,10 @@ object Day04 : Day<Int, Int> {
 
   override fun silver(): Int = input.lines().map { it.toCard() }.sumOf { it.score }
 
-  override fun gold(): Int = input.lines().map { it.toCard() }.fold(mutableMapOf<Int, Int>()) { acc, card ->
-    acc[card.id] = acc.getOrDefault(card.id, 0) + 1
-    (1..card.winnerCount).forEach { i ->
-      acc[card.id + i] = acc.getOrDefault(card.id + i, 0) + acc[card.id]!!
-    }
-    acc
+  override fun gold(): Int = input.lines().map { it.toCard() }.fold(emptyMap<Int, Int>()) { acc, card ->
+    val cardVal = acc.getOrDefault(card.id, 0) + 1
+    val cardClones = (1..card.winnerCount).map { i -> acc.getOrDefault(card.id + i, 0) + cardVal }
+    acc + (card.id to cardVal) + cardClones.mapIndexed { i, v -> card.id + i + 1 to v }
   }.values.sum()
 
 
