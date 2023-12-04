@@ -5,14 +5,15 @@ import kotlin.math.pow
 object Day04 : Day<Int, Int> {
   override val calendarDate: Int = 4
 
-  override fun silver(): Int = input.lines().map { it.toCard() }.sumOf { it.score }
+  private val cards: List<Card> = input.lines().map { it.toCard() }
 
-  override fun gold(): Int = input.lines().map { it.toCard() }.fold(emptyMap<Int, Int>()) { acc, card ->
-    val cardVal = acc.getOrDefault(card.id, 0) + 1
-    val cardClones = (1..card.winnerCount).map { i -> acc.getOrDefault(card.id + i, 0) + cardVal }
-    acc + (card.id to cardVal) + cardClones.mapIndexed { i, v -> card.id + i + 1 to v }
+  override fun silver(): Int = cards.sumOf { it.score }
+
+  override fun gold(): Int = cards.fold(emptyMap<Int, Int>()) { acc, card ->
+    val currentCard = acc.getOrDefault(card.id, 0) + 1
+    val cardClones = (1..card.winnerCount).map { i -> acc.getOrDefault(card.id + i, 0) + currentCard }
+    acc + (card.id to currentCard) + cardClones.mapIndexed { i, v -> card.id + i + 1 to v }
   }.values.sum()
-
 
   private fun String.toCard(): Card {
     val (idStr, numbers) = split(": ")
