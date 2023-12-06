@@ -14,18 +14,18 @@ object Day05 : Day<Long, Long> {
 
   override fun gold(): Long = reverseSearch()
 
-  private fun Source.reverseSearch(location: Long): Long =
-    mappings.firstOrNull { it.destinationStart <= location && location <= it.destinationStart + it.rangeLength }?.let {
-      location - it.delta
-    } ?: location
-
   private tailrec fun reverseSearch(location: Long = 1): Long {
-    val seed = sources.reversed().fold(location) { acc, source -> source.reverseSearch(acc) }
+    val seed = sources.reversed().fold(location) { acc, source -> source.searchLocation(acc) }
 
     if (goldSeeds.any { it.contains(seed) }) return location
 
     return reverseSearch(location + 1)
   }
+
+  private fun Source.searchLocation(location: Long): Long =
+    mappings.firstOrNull { it.destinationStart <= location && location <= it.destinationStart + it.rangeLength }?.let {
+      location - it.delta
+    } ?: location
 
   data class Source(val mappings: List<Mapping>) {
     fun translate(id: Long): Long = mappings.find {
