@@ -34,8 +34,6 @@ object Day06 : Day<Long, Long> {
   }
 
   private fun Race.findIntersection(range: LongProgression): Long = range.find { t -> isRecordBreakingScore(t) }!!
-
-
   private fun Race.isRecordBreakingScore(score: Long): Boolean = (score * time) - (score * score) > record
   data class Race(val time: Long, val record: Long)
 }
