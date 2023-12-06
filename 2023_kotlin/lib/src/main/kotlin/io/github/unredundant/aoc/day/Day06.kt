@@ -20,37 +20,22 @@ object Day06 : Day<Long, Long> {
       return Race(time, record)
     }
 
-  override fun silver(): Long =
-    silverRaces.map { it.calculateRecordBreakingScores() }.map { it.count() }.fold(1) { acc, i -> acc * i }
+  override fun silver(): Long = silverRaces.map { it.numberOfRecordBreakingScores() }.fold(1) { acc, i -> acc * i }
+  override fun gold(): Long = goldRace.numberOfRecordBreakingScores()
 
-  override fun gold(): Long {
-    val a = goldRace.let { r ->
-      LongRange(0, r.time).find { t ->
-        val result = (t * r.time) - (t * t)
-        result > r.record
-      }
-    }!!
-
-    val b = goldRace.let { r ->
-      LongRange(0, r.time).reversed().find { t ->
-        val result = (t * r.time) - (t * t)
-        result > r.record
-      }
-    }!!
+  private fun Race.numberOfRecordBreakingScores(): Long {
+    val range = LongRange(0, time)
+    val a = findIntersection(range)
+    val b = findIntersection(range.reversed())
 
     return b - a + 1
   }
 
-  private fun Race.calculateRecordBreakingScores(): List<Long> = (0..time).fold(emptyList()) { acc, t ->
-    val speed = time - t
-    val travelTime = time - speed
-    val distance = speed * travelTime
-
-    if (distance > record) {
-      acc + distance
-    } else {
-      acc
-    }
+  private fun Race.findIntersection(range: LongProgression): Long {
+    return range.find { t ->
+      val result = (t * time) - (t * t)
+      result > record
+    }!!
   }
 
   data class Race(val time: Long, val record: Long)
