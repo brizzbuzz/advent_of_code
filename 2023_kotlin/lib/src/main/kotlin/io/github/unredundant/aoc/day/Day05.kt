@@ -1,7 +1,5 @@
 package io.github.unredundant.aoc.day
 
-typealias Delta = Long
-
 object Day05 : Day<Long, Long> {
   override val calendarDate: Int = 5
 
