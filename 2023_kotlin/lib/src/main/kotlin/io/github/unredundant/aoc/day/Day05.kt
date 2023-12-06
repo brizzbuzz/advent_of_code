@@ -7,8 +7,8 @@ object Day05 : Day<Long, Long> {
   private val sources = serializedSources.map { it.toSource() }
 
   private val serializedSeeds = input.lines().first().split(": ").last().split(" ")
-  private val silverSeeds: Sequence<Long> = serializedSeeds.map { it.toLong() }.asSequence()
-  private val goldSeeds: Sequence<LongRange> = silverSeeds.chunked(2).map { (a, b) -> LongRange(a, a + b) }
+  private val silverSeeds = serializedSeeds.map { it.toLong() }
+  private val goldSeeds = silverSeeds.chunked(2).map { (a, b) -> LongRange(a, a + b) }
 
   override fun silver(): Long = sources.fold(silverSeeds) { ids, s -> ids.map { id -> s.translate(id) } }.min()
 
