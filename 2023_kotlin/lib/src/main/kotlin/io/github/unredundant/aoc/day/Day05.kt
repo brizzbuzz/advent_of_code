@@ -21,7 +21,7 @@ object Day05 : Day<Long, Long> {
       step /= 10
     }
 
-    return location
+    return reverseSearch(location - 5000, 1)
   }
 
   private tailrec fun reverseSearch(location: Long, step: Long): Long {
