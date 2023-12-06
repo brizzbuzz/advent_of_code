@@ -13,15 +13,15 @@ object Day05 : Day<Long, Long> {
   override fun silver(): Long = sources.fold(silverSeeds) { ids, s -> ids.map { id -> s.translate(id) } }.min()
 
   override fun gold(): Long {
-    var step = 100000L
+    var step = 10000L
     var location = 1L
 
-    do {
-      location = reverseSearch(location - step, step)
+    while (step > 0) {
+      location = reverseSearch(location, step)
       step /= 10
-    } while (step != 1L)
+    }
 
-    return reverseSearch(location, step)
+    return location
   }
 
   private tailrec fun reverseSearch(location: Long, step: Long): Long {
