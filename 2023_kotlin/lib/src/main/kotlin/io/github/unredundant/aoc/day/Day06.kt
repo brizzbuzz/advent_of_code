@@ -1,5 +1,7 @@
 package io.github.unredundant.aoc.day
 
+import kotlin.math.min
+
 object Day06 : Day<Long, Long> {
   override val calendarDate: Int = 6
 
@@ -31,12 +33,9 @@ object Day06 : Day<Long, Long> {
     return b - a + 1
   }
 
-  private fun Race.findIntersection(range: LongProgression): Long {
-    return range.find { t ->
-      val result = (t * time) - (t * t)
-      result > record
-    }!!
-  }
+  private fun Race.findIntersection(range: LongProgression): Long = range.find { t -> isRecordBreakingScore(t) }!!
 
+
+  private fun Race.isRecordBreakingScore(score: Long): Boolean = (score * time) - (score * score) > record
   data class Race(val time: Long, val record: Long)
 }
