@@ -12,14 +12,24 @@ object Day05 : Day<Long, Long> {
 
   override fun silver(): Long = sources.fold(silverSeeds) { ids, s -> ids.map { id -> s.translate(id) } }.min()
 
-  override fun gold(): Long = reverseSearch()
+  override fun gold(): Long {
+    var step = 100000L
+    var location = 1L
 
-  private tailrec fun reverseSearch(location: Long = 1): Long {
+    do {
+      location = reverseSearch(location - step, step)
+      step /= 10
+    } while (step != 1L)
+
+    return reverseSearch(location, step)
+  }
+
+  private tailrec fun reverseSearch(location: Long, step: Long): Long {
     val seed = sources.reversed().fold(location) { acc, source -> source.searchLocation(acc) }
 
     if (goldSeeds.any { it.contains(seed) }) return location
 
-    return reverseSearch(location + 1)
+    return reverseSearch(location + step, step)
   }
 
   private fun Source.searchLocation(location: Long): Long =
