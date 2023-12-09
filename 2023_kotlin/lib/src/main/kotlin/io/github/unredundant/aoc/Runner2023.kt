@@ -4,6 +4,7 @@ import io.github.unredundant.aoc.day.*
 import io.github.unredundant.aoc.util.Util.printDayResults
 
 fun main() {
+  printDayResults(Day07)
   printDayResults(Day06)
   printDayResults(Day05)
   printDayResults(Day04)
