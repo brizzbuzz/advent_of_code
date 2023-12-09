@@ -10,18 +10,7 @@ object Day07 : Day<Int, Int> {
 
   override fun silver(): Int = silverHands.sorted().mapIndexed { i, h -> (i + 1) * h.bid }.sum()
 
-  override fun gold(): Int {
-    val result = goldHands.sorted()
-
-    val justWildcards = goldHands.filter { it.cards.contains(Card.WILDCARD) }.sorted()
-
-    justWildcards.forEachIndexed { i, r ->
-      val rank = i + 1
-      println("$rank(${r.handType}: $r")
-    }
-
-    return result.mapIndexed { i, h -> (i + 1) * h.bid }.sum()
-  }
+  override fun gold(): Int = goldHands.sorted().mapIndexed { i, h -> (i + 1) * h.bid }.sum()
 
   private fun String.toHand(): Hand {
     val (cardStr, bidStr) = split(" ")
@@ -31,7 +20,7 @@ object Day07 : Day<Int, Int> {
   }
 
   data class Hand(val cards: List<Card>, val bid: Int) : Comparable<Hand> {
-    val handType: HandType = HandType.determineType(cards)
+    private val handType: HandType = HandType.determineType(cards)
 
     override fun compareTo(other: Hand): Int {
       if (handType.strength < other.handType.strength) {
