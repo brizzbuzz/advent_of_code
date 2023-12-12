@@ -9,23 +9,24 @@ object Day10 : Day<Int, Int> {
     .associate { it.first to it.second }
 
   private val startingPoint = map.filterValues { it == 'S' }.keys.first()
-  private val startingNeighbors = startingPoint.findValidNeighbors()
-  private val pipeMap = startingPoint.travel(startingNeighbors.first(), 0, mapOf(startingPoint to Pair(0, 'S')))
+  private val startingNeighbors = startingPoint.findValidNeighborsClockwise()
+  private val pipeMap = startingPoint.travel(startingNeighbors.first(), 0, listOf(PipeSegment(startingPoint, 0, 'S')))
+  private val pipeCoords = pipeMap.map { it.coords }
 
-  private fun Coordinate.findValidNeighbors(): Set<Direction> {
+  private fun Coordinate.findValidNeighborsClockwise(): Set<Direction> {
     val valid = mutableSetOf<Direction>()
-    if (map[west()] == 'F' || map[west()] == 'L' || map[west()] == '-') valid += Direction.WEST
-    if (map[east()] == 'J' || map[east()] == '7' || map[east()] == '-') valid += Direction.EAST
     if (map[north()] == '7' || map[north()] == 'F' || map[north()] == '|') valid += Direction.NORTH
+    if (map[east()] == 'J' || map[east()] == '7' || map[east()] == '-') valid += Direction.EAST
     if (map[south()] == 'J' || map[south()] == 'L' || map[south()] == '|') valid += Direction.SOUTH
+    if (map[west()] == 'F' || map[west()] == 'L' || map[west()] == '-') valid += Direction.WEST
     return valid.toSet()
   }
 
   private tailrec fun Coordinate.travel(
     comingFrom: Direction,
     step: Int,
-    path: Map<Coordinate, Pair<Int, Char>>
-  ): Map<Coordinate, Pair<Int, Char>> {
+    path: List<PipeSegment>
+  ): List<PipeSegment> {
     val newCoords = when (comingFrom) {
       Direction.EAST -> east()
       Direction.SOUTH -> south()
@@ -47,12 +48,12 @@ object Day10 : Day<Int, Int> {
       else -> error("Unhandled pipe at $newCoords: ${map[newCoords]}")
     }
 
-    return newCoords.travel(newDirection, newStep, path + (newCoords to Pair(newStep, map[newCoords]!!)))
+    return newCoords.travel(newDirection, newStep, path + PipeSegment(newCoords, newStep, map[newCoords]!!))
   }
 
-  enum class Direction { EAST, SOUTH, NORTH, WEST }
+  enum class Direction { EAST, SOUTH, WEST, NORTH }
 
-  override fun silver(): Int = ceil(pipeMap.values.maxOf { it.first }.toDouble() / 2).toInt()
+  override fun silver(): Int = ceil(pipeMap.maxOf { it.step }.toDouble() / 2).toInt()
 
   override fun gold(): Int {
     return 0
@@ -63,5 +64,14 @@ object Day10 : Day<Int, Int> {
     fun east() = Coordinate(x + 1, y)
     fun north() = Coordinate(x, y - 1)
     fun south() = Coordinate(x, y + 1)
+  }
+
+  data class PipeSegment(val coords: Coordinate, val step: Int, val char: Char)
+
+  private fun Coordinate.leftHandCoordinate(orientation: Direction) = when (orientation) {
+    Direction.EAST -> north()
+    Direction.SOUTH -> east()
+    Direction.WEST -> south()
+    Direction.NORTH -> west()
   }
 }
